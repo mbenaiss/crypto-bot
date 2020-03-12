@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"sync"
 	"time"
 
 	"github.com/brianloveswords/airtable"
@@ -24,6 +25,8 @@ func main() {
 
 	ser := service.New(client, k, models.Strategy{})
 
+	wg := sync.WaitGroup{}
+	wg.Add(1)
 	ticker := time.NewTicker(time.Duration(c.TradeTicker) * time.Second)
 	go func() {
 		for range ticker.C {
@@ -33,4 +36,5 @@ func main() {
 			}
 		}
 	}()
+	wg.Wait()
 }
