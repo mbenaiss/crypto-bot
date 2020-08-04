@@ -13,6 +13,8 @@ type Config struct {
 	AirtableKey  string `envconfig:"AIRTABLE_KEY"`
 	AirtableBase string `envconfig:"AIRTABLE_BASE"`
 	TradeTicker  int    `envconfig:"TRADE_TICKER"`
+	HttpPort     int    `envconfig:"HTTP_PORT"`
+	HealthzPort  int    `envconfig:"HEALTHZ_PORT"`
 }
 
 //New retrun new instance of Config

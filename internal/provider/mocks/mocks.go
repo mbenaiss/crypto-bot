@@ -26,3 +26,7 @@ func (m *mock) AddOrder(pair, direction, orderType, price, volume string) error 
 func (m *mock) Trades() ([]models.Trade, error) {
 	return nil, nil
 }
+
+func (m *mock) ReadFromFile(filename string) error {
+	return nil
+}

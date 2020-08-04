@@ -9,18 +9,24 @@ import (
 	krakenapi "github.com/beldur/kraken-go-api-client"
 	"github.com/mbenaiss/crypto-bot/internal/provider"
 	"github.com/mbenaiss/crypto-bot/models"
+	"github.com/mbenaiss/crypto-bot/pkg/csv"
 )
 
 type kraken struct {
 	api   *krakenapi.KrakenApi
 	asset string
+	csv   *csv.Client
 }
 
 func New(key, secret string, asset string) provider.Provider {
 	api := krakenapi.New(key, secret)
+	c := csv.New(',', []string{
+		"time", "type", "asset", "amount", "fee", "balance",
+	})
 	return &kraken{
 		api:   api,
 		asset: asset,
+		csv:   c,
 	}
 }
 
@@ -115,6 +121,15 @@ func (k *kraken) Trades() ([]models.Trade, error) {
 		})
 	}
 	return res, nil
+}
+
+func (k *kraken) ReadFromFile(filename string) error {
+	r, err := k.csv.Read(filename)
+	if err != nil {
+		return err
+	}
+	fmt.Println(r)
+	return nil
 }
 
 func getCrypto(pair string) string {
