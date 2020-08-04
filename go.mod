@@ -1,9 +1,9 @@
 module github.com/mbenaiss/crypto-bot
 
-go 1.13
+go 1.14
 
 require (
-	github.com/beldur/kraken-go-api-client v0.0.0-20190315074429-1bcd7922cada
+	github.com/beldur/kraken-go-api-client v0.0.0-20200330152217-ed78f31b987e
 	github.com/brianloveswords/airtable v0.0.0-20200303135952-d5e6b4516c7b
 	github.com/gin-gonic/gin v1.6.3
 	github.com/joho/godotenv v1.3.0
