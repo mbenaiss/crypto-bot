@@ -33,6 +33,10 @@ func (c *Client) Read(filename string) ([]map[string]string, error) {
 		return nil, err
 	}
 
+	if len(records) == 0 {
+		return []map[string]string{}, nil
+	}
+
 	columns := make(map[string]int)
 	for i, col := range records[0] {
 		columns[col] = i
