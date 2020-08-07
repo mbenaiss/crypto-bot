@@ -6,9 +6,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	"github.com/mbenaiss/crypto-bot/config"
 	"github.com/mbenaiss/crypto-bot/internal/service"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Server struct {
@@ -26,6 +27,7 @@ func New(cfg *config.Config) *Server {
 func (s *Server) StartHTTP(svc *service.Service) error {
 	r := gin.Default()
 	r.POST("/upload/:provider", uploadCsv(svc))
+	r.POST("/provider", addProvider(svc))
 
 	s.httpServer = &http.Server{
 		Addr:    fmt.Sprintf(":%d", s.cfg.HttpPort),
@@ -46,7 +48,6 @@ func (s *Server) StartHealthz() error {
 		Addr:    fmt.Sprintf(":%d", s.cfg.HealthzPort),
 		Handler: r,
 	}
-
 	return s.technicalServer.ListenAndServe()
 }
 

@@ -27,6 +27,14 @@ func (m *mock) Trades() ([]models.Trade, error) {
 	return nil, nil
 }
 
-func (m *mock) ReadFromFile(filename string) error {
-	return nil
+func (m *mock) ReadFromFile(filename string) ([]models.Trade, error) {
+	return nil, nil
+}
+
+func (m *mock) Name() provider.ProviderName {
+	return provider.Mock
+}
+
+func (m *mock) IsTradable() bool {
+	return false
 }

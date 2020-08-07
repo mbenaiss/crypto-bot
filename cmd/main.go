@@ -16,6 +16,7 @@ import (
 	"github.com/brianloveswords/airtable"
 	"github.com/mbenaiss/crypto-bot/cmd/server"
 	"github.com/mbenaiss/crypto-bot/config"
+	"github.com/mbenaiss/crypto-bot/internal/provider"
 	"github.com/mbenaiss/crypto-bot/internal/provider/kraken"
 	"github.com/mbenaiss/crypto-bot/internal/service"
 	"github.com/mbenaiss/crypto-bot/models"
@@ -35,7 +36,8 @@ func main() {
 		BaseID: c.AirtableBase,
 	}
 	k := kraken.New(c.KrakenKey, c.KrakenSecret, "ZEUR")
-	svc := service.New(client, k, models.Strategy{})
+	providers := []provider.Provider{k}
+	svc := service.New(client, providers, models.Strategy{})
 
 	srv := server.New(c)
 
@@ -84,7 +86,7 @@ func Ticker(c *config.Config, ser *service.Service) {
 	ticker := time.NewTicker(time.Duration(c.TradeTicker) * time.Second)
 	go func() {
 		for range ticker.C {
-			err := ser.Trades()
+			err := ser.Trades(provider.Kraken)
 			if err != nil {
 				log.Fatal(err)
 			}

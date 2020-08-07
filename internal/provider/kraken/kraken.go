@@ -7,6 +7,7 @@ import (
 	"time"
 
 	krakenapi "github.com/beldur/kraken-go-api-client"
+
 	"github.com/mbenaiss/crypto-bot/internal/provider"
 	"github.com/mbenaiss/crypto-bot/models"
 	"github.com/mbenaiss/crypto-bot/pkg/csv"
@@ -18,16 +19,24 @@ type kraken struct {
 	csv   *csv.Client
 }
 
+var csvColumns = []string{"time", "type", "asset", "amount", "fee", "balance"}
+
 func New(key, secret string, asset string) provider.Provider {
 	api := krakenapi.New(key, secret)
-	c := csv.New(',', []string{
-		"time", "type", "asset", "amount", "fee", "balance",
-	})
+	c := csv.New(',', csvColumns)
 	return &kraken{
 		api:   api,
 		asset: asset,
 		csv:   c,
 	}
+}
+
+func (k *kraken) Name() provider.ProviderName {
+	return provider.Kraken
+}
+
+func (k *kraken) IsTradable() bool {
+	return true
 }
 
 func (k *kraken) Balance() (float64, error) {
@@ -123,13 +132,41 @@ func (k *kraken) Trades() ([]models.Trade, error) {
 	return res, nil
 }
 
-func (k *kraken) ReadFromFile(filename string) error {
+func (k *kraken) ReadFromFile(filename string) ([]models.Trade, error) {
 	r, err := k.csv.Read(filename)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	fmt.Println(r)
-	return nil
+	trades := make([]models.Trade, 0, len(r))
+	for _, trade := range r {
+		fee, err := strconv.ParseFloat(trade["fee"], 64)
+		if err != nil {
+			return nil, err
+		}
+		amount, err := strconv.ParseFloat(trade["balance"], 64)
+		if err != nil {
+			return nil, err
+		}
+		price, err := strconv.ParseFloat(trade["amount"], 64)
+		if err != nil {
+			return nil, err
+		}
+		ti, err := time.Parse(time.RFC3339, trade["time"])
+		if err != nil {
+			return nil, err
+		}
+		t := models.Buy //trade["type"]
+		trades = append(trades, models.Trade{
+			Crypto:  trade["asset"],
+			Amount:  amount,
+			Fee:     fee,
+			OrderID: trade["amount"],
+			Price:   price,
+			Time:    ti,
+			Type:    t,
+		})
+	}
+	return trades, nil
 }
 
 func getCrypto(pair string) string {
